@@ -272,6 +272,24 @@
   .modal .btn-lg{width:100%;margin-top:26px}
   .modal .mailnote{font-size:11.5px;color:var(--ink-2);text-align:center;margin-top:12px}
 
+  /* ---------- KAKAO CHAT FLOATING ---------- */
+  .kakao-fab{
+    position:fixed;right:22px;bottom:22px;z-index:150;
+    display:inline-flex;align-items:center;gap:9px;
+    background:#FEE500;color:#191919;text-decoration:none;
+    font-weight:800;font-size:14.5px;
+    padding:13px 20px 13px 16px;border-radius:999px;
+    box-shadow:0 10px 30px rgba(0,0,0,.22);
+    transition:transform .15s ease,box-shadow .15s ease;
+  }
+  .kakao-fab:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(0,0,0,.28)}
+  .kakao-fab:focus-visible{outline:3px solid rgba(0,102,255,.4);outline-offset:2px}
+  .kakao-fab svg{width:22px;height:22px;flex:0 0 auto}
+  @media (max-width:640px){
+    .kakao-fab{right:16px;bottom:16px;padding:12px 17px 12px 14px;font-size:13.5px}
+  }
+  @media (prefers-reduced-motion:reduce){.kakao-fab{transition:none}}
+
   /* ---------- reveal ---------- */
   .rv{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
   .rv.in{opacity:1;transform:none}
@@ -437,11 +455,23 @@
       </span>
     </div>
     <p class="legal">
-      bmyrobot.com · 주식회사 게이즈 (GAZE, inc.)<br>
-      B MY ROBOT은 GAZE ROBOTICS(로보틱스 공식 유통 도입 플랫폼)와 GAZE SHOP(프리미엄 테크 리테일)이 운영하는 로봇 렌탈·현장 운영 서비스입니다
+      bmyrobot.com<br>
+      B MY ROBOT은 GAZE ROBOTICS(로보틱스 공식 유통 도입 플랫폼)와 GAZE SHOP(프리미엄 테크 리테일)이 운영하는 로봇 렌탈·현장 운영 서비스입니다<br><br>
+      주식회사 게이즈 (GAZE, inc.)<br>
+      대표 : 이갑현, 이주연<br>
+      주소 : 서울시 종로구 자하문로4길 21-5, 5층<br>
+      문의 : <a href="mailto:gaze@gaze-lab.com">gaze@gaze-lab.com</a>
     </p>
   </div>
 </footer>
+
+<!-- KAKAO 1:1 CHAT -->
+<a class="kakao-fab" id="kakaoFab" href="#" target="_blank" rel="noopener" aria-label="카카오톡 채널 게이즈샵 1:1 채팅 문의">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M12 3C6.48 3 2 6.54 2 10.9c0 2.8 1.86 5.26 4.66 6.66-.15.53-.97 3.34-1 3.56 0 0-.02.17.09.24.11.07.24.02.24.02.32-.05 3.65-2.39 4.23-2.8.58.08 1.17.12 1.78.12 5.52 0 10-3.54 10-7.9S17.52 3 12 3z" fill="#191919"/>
+  </svg>
+  1:1 채팅 문의
+</a>
 
 <!-- BOOKING MODAL -->
 <div class="overlay" id="ov" role="dialog" aria-modal="true" aria-labelledby="mTitle">
@@ -484,6 +514,8 @@
 /* ====== CONFIG — 여기만 수정하면 됩니다 ====== */
 const BOOKING_EMAIL = "gaze@gaze-lab.com";   // 예약 접수 메일 주소
 const MAIL_TAG      = "[B MY ROBOT]";          // 메일 제목 태그
+const KAKAO_CHAT_URL = "https://pf.kakao.com/_HxiExbj/chat";  // 카카오톡 채널 '게이즈샵' 1:1 채팅
+document.getElementById("kakaoFab").href = KAKAO_CHAT_URL;
 
 /* ====== ROBOT CATALOG (요금·설명 수정 가능) ====== */
 const ROBOTS = [
