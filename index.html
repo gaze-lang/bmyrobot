@@ -506,7 +506,7 @@
     </div>
 
     <button class="btn btn-lg btn-fill" onclick="submitBooking()">문의 보내기</button>
-    <p class="mailnote">메일 앱이 열리며 작성 내용이 자동으로 담깁니다.</p>
+    <p class="mailnote" id="fStatus">보내기를 누르면 담당 매니저에게 바로 접수됩니다.</p>
   </div>
 </div>
 
@@ -515,6 +515,7 @@
 const BOOKING_EMAIL = "gaze@gaze-lab.com";   // 예약 접수 메일 주소
 const MAIL_TAG      = "[B MY ROBOT]";          // 메일 제목 태그
 const KAKAO_CHAT_URL = "https://pf.kakao.com/_HxiExbj/chat";  // 카카오톡 채널 '게이즈샵' 1:1 채팅
+const WEB3FORMS_KEY = "006da0d3-b336-450d-9dfa-bfdf640c0ff7";  // Web3Forms 폼 직접 전송
 document.getElementById("kakaoFab").href = KAKAO_CHAT_URL;
 
 /* ====== ROBOT CATALOG (요금·설명 수정 가능) ====== */
@@ -597,10 +598,16 @@ function openBooking(t,robotId){
 function closeBooking(){ov.classList.remove("show");document.body.style.overflow="";}
 ov.addEventListener("click",e=>{if(e.target===ov)closeBooking();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeBooking();});
-function submitBooking(){
+async function submitBooking(){
   const v=id=>document.getElementById(id).value.trim();
+  const st=document.getElementById("fStatus");
+  if(!v("fName")||!v("fPhone")){
+    st.textContent="성함과 연락처를 입력해 주세요."; st.style.color="#d0342c"; return;
+  }
+  const trackKo = track==="live"?"Live (행사)":"Pro (산업/장기)";
+  const subj=`${MAIL_TAG} ${track==="live"?"Live":"Pro"} 예약 문의 — ${v("fName")}`;
   const body=[
-    `트랙: ${track==="live"?"Live (행사)":"Pro (산업/장기)"}`,
+    `트랙: ${trackKo}`,
     `성함: ${v("fName")}`,
     `회사/기관: ${v("fOrg")||"-"}`,
     `연락처: ${v("fPhone")}`,
@@ -608,7 +615,38 @@ function submitBooking(){
     `관심 로봇: ${v("fRobot")||"미정"}`,
     ``,`내용:`,v("fMsg")
   ].join("\n");
-  const subj=`${MAIL_TAG} ${track==="live"?"Live":"Pro"} 예약 문의 — ${v("fName")||"고객"}`;
+
+  // 1순위: Web3Forms 직접 전송 (메일 앱 불필요)
+  if(WEB3FORMS_KEY){
+    st.textContent="전송 중..."; st.style.color="";
+    try{
+      const res=await fetch("https://api.web3forms.com/submit",{
+        method:"POST",
+        headers:{"Content-Type":"application/json",Accept:"application/json"},
+        body:JSON.stringify({access_key:WEB3FORMS_KEY,subject:subj,from_name:"B MY ROBOT 예약폼",
+          "트랙":trackKo,"성함":v("fName"),"회사/기관":v("fOrg")||"-","연락처":v("fPhone"),
+          "희망 날짜":v("fDate")||"-","관심 로봇":v("fRobot")||"미정","내용":v("fMsg")})
+      });
+      const data=await res.json();
+      if(data.success){
+        st.textContent="✓ 문의가 접수되었습니다. 1영업일 내에 연락드리겠습니다."; st.style.color="#1a7f37";
+        return;
+      }
+      throw new Error(data.message||"submit failed");
+    }catch(e){
+      st.textContent="전송에 실패했습니다. 아래 방법으로 보내주세요."; st.style.color="#d0342c";
+    }
+  }
+
+  // 2순위: 문의 내용 복사 + 메일 앱 시도
+  try{
+    await navigator.clipboard.writeText(`받는사람: ${BOOKING_EMAIL}\n제목: ${subj}\n\n${body}`);
+    st.textContent=`문의 내용이 복사되었습니다. ${BOOKING_EMAIL} 로 붙여넣어 보내시거나, 카카오톡 1:1 채팅을 이용해 주세요.`;
+    st.style.color="";
+  }catch(e){
+    st.textContent=`${BOOKING_EMAIL} 로 문의 내용을 보내주시거나, 카카오톡 1:1 채팅을 이용해 주세요.`;
+    st.style.color="";
+  }
   location.href=`mailto:${BOOKING_EMAIL}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
 }
 
