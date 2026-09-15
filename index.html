@@ -188,6 +188,33 @@
   .card-b .from b{display:block;font-size:15px;color:var(--ink);font-weight:800;margin-top:2px}
   .note{font-size:12px;color:var(--ink-2);text-align:center;margin-top:26px}
 
+  /* ---------- FIELD VIDEOS ---------- */
+  .videos{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:44px}
+  .vcard{width:min(300px,80vw)}
+  .vframe{
+    aspect-ratio:9/16;border-radius:var(--radius);overflow:hidden;position:relative;
+    background:#0b0b0c;cursor:pointer;
+    transition:transform .18s ease,box-shadow .18s ease;
+  }
+  .vframe:hover{transform:translateY(-4px);box-shadow:0 18px 44px rgba(0,0,0,.18)}
+  .vframe img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .vframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .vplay{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;
+    background:rgba(0,0,0,.12);
+  }
+  .vplay span{
+    width:62px;height:62px;border-radius:50%;background:rgba(255,255,255,.92);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 24px rgba(0,0,0,.3);
+  }
+  .vplay span::after{
+    content:"";display:block;margin-left:5px;
+    border-style:solid;border-width:11px 0 11px 18px;
+    border-color:transparent transparent transparent var(--dark);
+  }
+  .vcap{font-size:13.5px;color:var(--ink-2);text-align:center;margin-top:12px;font-weight:600}
+
   /* ---------- STEPS ---------- */
   #how{
     background:
@@ -334,6 +361,7 @@
       <a class="nl" href="#live">Live</a>
       <a class="nl" href="#pro">Pro</a>
       <a class="nl" href="#robots">로봇</a>
+      <a class="nl" href="#field">영상</a>
       <a class="nl" href="#how">이용 방법</a>
       <button class="btn btn-sm btn-fill" onclick="openBooking()">예약하기</button>
     </div>
@@ -402,6 +430,16 @@
     </div>
     <div class="grid" id="grid"></div>
     <p class="note">표기 요금은 기본 구성 기준 시작가이며, 운영 기간·현장 조건에 따라 달라질 수 있습니다.<br>로봇 조종·운영 용역비 일 50만원, 왕복 화물운송료는 별도입니다.</p>
+  </div>
+</section>
+
+<!-- FIELD VIDEOS -->
+<section class="alt" id="field">
+  <div class="wrap center">
+    <span class="eyebrow rv">Field</span>
+    <h2 class="rv">현장에서 만난 B MY ROBOT</h2>
+    <p class="lead rv">사진보다 확실합니다. 실제 행사 현장의 로봇을 영상으로 확인하세요.</p>
+    <div class="videos" id="videos"></div>
   </div>
 </section>
 
@@ -541,6 +579,42 @@ const ROBOTS = [
    desc:"착용형 외골격. 아웃도어 행사, 체험 부스, 워킹 투어 프로그램에 바로 적용됩니다."}
 ];
 const CAT_KO = {humanoid:"휴머노이드", quad:"사족보행", wearable:"웨어러블", ai:"AI 로봇"};
+
+/* ====== FIELD VIDEOS (유튜브 ID와 캡션만 추가하면 됩니다) ====== */
+const VIDEOS = [
+  {id:"G5IPen95kKc", caption:"B MY ROBOT 현장 스케치"},
+  {id:"RcEfSQti20w", caption:"B MY ROBOT 현장 스케치"},
+  {id:"3wW7XM1dc6E", caption:"B MY ROBOT 현장 스케치"},
+  {id:"qwoV0JK92eI", caption:"B MY ROBOT 현장 스케치"},
+  {id:"HtA6wHGTq88", caption:"B MY ROBOT 현장 스케치"},
+  {id:"8c1hW6oRCzY", caption:"B MY ROBOT 현장 스케치"},
+  {id:"e4ZOSWvT-pE", caption:"B MY ROBOT 현장 스케치"}
+];
+const vwrap = document.getElementById("videos");
+VIDEOS.forEach(v=>{
+  const card = document.createElement("div");
+  card.className = "vcard rv in";
+  card.innerHTML = `
+    <div class="vframe" data-id="${v.id}" role="button" tabindex="0" aria-label="${v.caption} 영상 재생">
+      <img src="https://i.ytimg.com/vi/${v.id}/maxresdefault.jpg"
+           onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${v.id}/hqdefault.jpg'"
+           alt="${v.caption}" loading="lazy">
+      <div class="vplay"><span></span></div>
+    </div>
+    <p class="vcap">${v.caption}</p>`;
+  vwrap.appendChild(card);
+});
+vwrap.addEventListener("click", e=>{
+  const f = e.target.closest(".vframe");
+  if(!f || f.dataset.played) return;
+  f.dataset.played = "1";
+  f.innerHTML = `<iframe src="https://www.youtube.com/embed/${f.dataset.id}?autoplay=1&playsinline=1&rel=0"
+    title="현장 영상" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen></iframe>`;
+});
+vwrap.addEventListener("keydown", e=>{
+  if(e.key==="Enter"||e.key===" "){ e.preventDefault(); e.target.closest(".vframe")?.click(); }
+});
 
 /* ====== render catalog ====== */
 const grid = document.getElementById("grid");
