@@ -228,6 +228,38 @@
     border-color:transparent transparent transparent var(--dark);
   }
   .vcap{font-size:13.5px;color:var(--ink-2);text-align:center;margin-top:12px;font-weight:600}
+  .vtags{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+  .vtag{
+    font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;
+    padding:5px 11px;border-radius:999px;border:1px solid var(--hair);background:#fff;color:var(--ink);
+    transition:all .15s ease;
+  }
+  .vtag::before{content:"🤖 ";font-size:10px}
+  .vtag:hover{border-color:var(--accent);color:var(--accent)}
+  .feed-cta{margin-top:40px}
+  .feed-cta .hint{font-size:12.5px;color:var(--ink-2);margin-top:10px}
+
+  /* ---------- REVIEWS ---------- */
+  .rvw-grid{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:44px}
+  .rvw{
+    width:min(320px,100%);background:#fff;border-radius:var(--radius);
+    padding:30px 28px;border:1px solid rgba(0,0,0,.06);text-align:left;
+    display:flex;flex-direction:column;
+  }
+  .rvw .q{font-size:30px;line-height:1;color:var(--accent);font-weight:800;font-family:Georgia,serif}
+  .rvw p{font-size:14px;color:var(--ink);margin-top:10px;line-height:1.75;flex:1}
+  .rvw .who{margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .rvw .org{font-size:13px;font-weight:800}
+  .rvw .org small{display:block;font-size:11px;color:var(--ink-2);font-weight:600;margin-top:2px}
+  .rvw .rchip{
+    font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;
+    padding:6px 12px;border-radius:999px;border:1px solid var(--hair);background:var(--bg-alt);color:var(--ink);
+  }
+  .rvw .rchip:hover{border-color:var(--accent);color:var(--accent)}
+  .rvw-badge{
+    display:inline-block;font-size:10.5px;font-weight:800;color:var(--accent);
+    background:rgba(0,102,255,.08);border-radius:999px;padding:4px 10px;margin-top:8px;
+  }
 
   /* ---------- STEPS ---------- */
   #how{
@@ -375,7 +407,7 @@
       <a class="nl" href="#live">Live</a>
       <a class="nl" href="#pro">Pro</a>
       <a class="nl" href="#robots">로봇</a>
-      <a class="nl" href="#field">영상</a>
+      <a class="nl" href="#field">로봇 라이프</a>
       <a class="nl" href="#how">이용 방법</a>
       <button class="btn btn-sm btn-fill" onclick="openBooking()">예약하기</button>
     </div>
@@ -464,13 +496,27 @@
   </div>
 </section>
 
-<!-- FIELD VIDEOS -->
+<!-- ROBOT LIFE FEED -->
 <section id="field">
   <div class="wrap center">
-    <span class="eyebrow rv">Field</span>
-    <h2 class="rv">현장에서 만난 B MY ROBOT</h2>
-    <p class="lead rv">사진보다 확실합니다. 실제 행사 현장의 로봇을 영상으로 확인하세요.</p>
+    <span class="eyebrow rv">Robot Life</span>
+    <h2 class="rv">로봇 라이프</h2>
+    <p class="lead rv">현장과 일상에서 만난 로봇들. 영상 속 로봇이 마음에 들면, 태그를 눌러 바로 예약하세요.</p>
     <div class="videos" id="videos"></div>
+    <div class="feed-cta rv">
+      <a class="btn btn-lg btn-dark" id="feedSubmit" href="#" target="_blank" rel="noopener">📮 내 로봇 이야기 제보하기</a>
+      <p class="hint">행사 후기, 로봇과의 일상, 활용 아이디어 — 카카오톡 채널로 보내주시면 로봇 라이프에 소개해 드립니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="alt" id="reviews">
+  <div class="wrap center">
+    <span class="eyebrow rv">Reviews</span>
+    <h2 class="rv">현장이 남긴 후기</h2>
+    <p class="lead rv">실제로 B MY ROBOT과 행사를 치른 고객의 이야기입니다.</p>
+    <div class="rvw-grid" id="rvwGrid"></div>
   </div>
 </section>
 
@@ -620,31 +666,45 @@ const ROBOTS = [
 ];
 const CAT_KO = {humanoid:"휴머노이드", quad:"사족보행", wearable:"웨어러블", ai:"AI 로봇"};
 
-/* ====== FIELD VIDEOS (유튜브 ID와 캡션만 추가하면 됩니다) ====== */
-const VIDEOS = [
-  {id:"G5IPen95kKc", caption:"B MY ROBOT 현장 스케치"},
-  {id:"RcEfSQti20w", caption:"B MY ROBOT 현장 스케치"},
-  {id:"3wW7XM1dc6E", caption:"B MY ROBOT 현장 스케치"},
-  {id:"qwoV0JK92eI", caption:"B MY ROBOT 현장 스케치"},
-  {id:"HtA6wHGTq88", caption:"B MY ROBOT 현장 스케치"},
-  {id:"8c1hW6oRCzY", caption:"B MY ROBOT 현장 스케치"},
-  {id:"e4ZOSWvT-pE", caption:"B MY ROBOT 현장 스케치"},
-  {id:"jTO2vZL7fcw", caption:"B MY ROBOT 현장 스케치"},
-  {id:"hsOEhQ4TocQ", caption:"B MY ROBOT 현장 스케치"},
-  {id:"3F4ooGKyopI", caption:"B MY ROBOT 현장 스케치"}
+/* ====== ROBOT LIFE FEED ======
+   영상: {id:"유튜브ID", caption:"...", robots:["g1"]}
+   사진: {img:"이미지 데이터/URL", caption:"...", robots:["go2"]}
+   robots에 ROBOTS의 id를 넣으면 카드 아래 예약 태그가 붙습니다. */
+const FEED = [
+  {id:"G5IPen95kKc", caption:"ABC 방송국 개국행사 · 아주뉴스코퍼레이션", robots:["g1"]},
+  {id:"RcEfSQti20w", caption:"게이즈 로봇 팝업 · 더현대서울", robots:["go2"]},
+  {id:"3wW7XM1dc6E", caption:"게이즈 로봇 팝업 · 더현대서울", robots:["go2"]},
+  {id:"qwoV0JK92eI", caption:"휴머노이드 댄스쇼 · 더현대서울", robots:["g1"]},
+  {id:"HtA6wHGTq88", caption:"바둑로봇 경진대회 · 더현대서울", robots:["srgo"]},
+  {id:"8c1hW6oRCzY", caption:"키움X맥스컷 행사 · 고척스카이돔", robots:["g1"]},
+  {id:"e4ZOSWvT-pE", caption:"휴머노이드 팝업 · 신세계백화점 강남점", robots:["g1"]},
+  {id:"jTO2vZL7fcw", caption:"GAMFF2026 행사 · 경상북도AI메타버스영상위원회", robots:["g1"]},
+  {id:"hsOEhQ4TocQ", caption:"바둑로봇 경진대회 · 현대백화점 판교점", robots:["srgo"]},
+  {id:"3F4ooGKyopI", caption:"휴머노이드 쿵푸 댄스 쇼 · 신세계백화점 강남점", robots:["g1"]},
+  {id:"FsdmDy7tP2Y", caption:"사족보행 로봇 조종 체험 · 동대문구청", robots:["go2"]}
 ];
+document.getElementById("feedSubmit").href = KAKAO_CHAT_URL;
 const vwrap = document.getElementById("videos");
-VIDEOS.forEach(v=>{
+function robotTags(ids){
+  if(!ids || !ids.length) return "";
+  const chips = ids.map(rid=>{
+    const r = ROBOTS.find(x=>x.id===rid);
+    return r ? `<button class="vtag" onclick="openBooking(null,'${r.id}')">${r.name}</button>` : "";
+  }).join("");
+  return chips ? `<div class="vtags">${chips}</div>` : "";
+}
+FEED.forEach(v=>{
   const card = document.createElement("div");
   card.className = "vcard rv in";
-  card.innerHTML = `
-    <div class="vframe" data-id="${v.id}" role="button" tabindex="0" aria-label="${v.caption} 영상 재생">
-      <img src="https://i.ytimg.com/vi/${v.id}/maxresdefault.jpg"
-           onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${v.id}/hqdefault.jpg'"
-           alt="${v.caption}" loading="lazy">
-      <div class="vplay"><span></span></div>
-    </div>
-    <p class="vcap">${v.caption}</p>`;
+  const media = v.id
+    ? `<div class="vframe" data-id="${v.id}" role="button" tabindex="0" aria-label="${v.caption} 영상 재생">
+         <img src="https://i.ytimg.com/vi/${v.id}/maxresdefault.jpg"
+              onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${v.id}/hqdefault.jpg'"
+              alt="${v.caption}" loading="lazy">
+         <div class="vplay"><span></span></div>
+       </div>`
+    : `<div class="vframe vphoto"><img src="${v.img}" alt="${v.caption}" loading="lazy"></div>`;
+  card.innerHTML = media + `<p class="vcap">${v.caption}</p>` + robotTags(v.robots);
   vwrap.appendChild(card);
 });
 vwrap.addEventListener("click", e=>{
@@ -658,6 +718,32 @@ vwrap.addEventListener("click", e=>{
 vwrap.addEventListener("keydown", e=>{
   if(e.key==="Enter"||e.key===" "){ e.preventDefault(); e.target.closest(".vframe")?.click(); }
 });
+
+/* ====== REVIEWS (운영자 검수 후 추가 — robot: ROBOTS의 id) ====== */
+const REVIEWS = [
+  {robot:"g1", org:"대한건설협회",
+   text:"협회 위원님들이 로봇으로 행사한다니 생소해하셨는데, 행사 오신 손님들께 하나하나 인사 응대도 잘해주고 전체적인 행사 분위기가 너무 업되었습니다. 감사합니다."},
+  {robot:"go2", org:"동대문구청",
+   text:"아이들이 직접 4족보행 로봇을 조종해보면서 미래가 정말 가까워졌다는 것을 느꼈습니다. 평소 접해보지 못하는 고가의 로봇을 직접 체험해볼 수 있는 행사 기획해주셔서 감사합니다."},
+  {robot:"srgo", org:"다산동 주민센터",
+   text:"주민센터 방문하시는 어르신들이 바둑로봇과 함께 직접 바둑을 두시면서 너무 좋아하셨어요. 안 쓰던 두뇌를 쓸 수 있는 프로그램이라 더더욱 좋았던 것 같습니다. 저희 센터에 장기적으로 몇 대 구매하려고 합니다."}
+];
+const rvwGrid = document.getElementById("rvwGrid");
+REVIEWS.forEach(rv=>{
+  const r = ROBOTS.find(x=>x.id===rv.robot);
+  const label = r ? r.name : "";
+  const card = document.createElement("div");
+  card.className = "rvw";
+  card.innerHTML = `
+    <span class="q">“</span>
+    <p>${rv.text}</p>
+    <div class="who">
+      <span class="org">${rv.org}<small>검증된 이용 고객</small></span>
+      ${r?`<button class="rchip" onclick="openBooking(null,'${r.id}')">${label} 예약</button>`:""}
+    </div>`;
+  rvwGrid.appendChild(card);
+});
+const REVIEW_COUNT = REVIEWS.reduce((m,rv)=>{m[rv.robot]=(m[rv.robot]||0)+1;return m;},{});
 
 /* ====== render catalog ====== */
 const grid = document.getElementById("grid");
@@ -673,6 +759,7 @@ function render(f){
       <div class="thumb"${r.bg?` style="background:${r.bg}"`:""}><span class="cat-tag">${CAT_KO[r.cat]}</span>${visual}</div>
       <div class="card-b">
         <h4>${r.name}</h4><span class="mk">${r.mk}</span>
+        ${REVIEW_COUNT[r.id]?`<span class="rvw-badge">실사용 후기 ${REVIEW_COUNT[r.id]}건</span>`:""}
         <p>${r.desc}</p>
         <div class="row">
           <span class="from">Live 기준<br><b>${r.from}</b></span>
